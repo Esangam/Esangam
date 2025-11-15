@@ -1,77 +1,52 @@
 package org.esangam.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
-@ApplicationScoped
 @Entity
+@Table(name = "members")
 public class Member {
 
     @Id
-    private String mobileNumber;
+    @Column(name = "mobile_number", nullable = false, length = 15)
+    private String mobileNumber;  // primary key
 
-    private String name;
+    @Column(nullable = false)
+    private String firstName;
 
-    private double valuePaid;
+    @Column
+    private String lastName;
 
-    private String password;
+    @Transient
+    private String fullName;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Loan> loans = new ArrayList<>();
+    @Column(nullable = false)
+    private String password;      // hashed
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Message> messages = new ArrayList<>();
+    @Column(nullable = false)
+    private String role;          // "ADMIN" or "MEMBER"
 
-    public Long getMobileNumber() {
-        return mobileNumber;
+    public Member() {
     }
 
-    public void setMobileNumber(String mobileNumber) {
-        this.mobileNumber = mobileNumber;
+    public String getMobileNumber() { return mobileNumber; }
+    public void setMobileNumber(String mobileNumber) { this.mobileNumber = mobileNumber; }
+
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getFullName() {
+        if (firstName == null && lastName == null) return null;
+        if (lastName == null) return firstName;
+        if (firstName == null) return lastName;
+        return firstName + " " + lastName;
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public double getValuePaid() {
-        return valuePaid;
-    }
-
-    public void setValuePaid(double valuePaid) {
-        this.valuePaid = valuePaid;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public List<Loan> getLoans() {
-        return loans;
-    }
-
-    public void setLoans(List<Loan> loans) {
-        this.loans = loans;
-    }
-
-    public List<Message> getMessages() {
-        return messages;
-    }
-
-    public void setMessages(List<Message> messages) {
-        this.messages = messages;
-    }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 }

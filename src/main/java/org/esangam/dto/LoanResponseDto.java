@@ -1,54 +1,19 @@
-package org.esangam.entity;
-
-import jakarta.persistence.*;
+package org.esangam.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-@Entity
-@Table(name = "loans")
-public class Loan {
+public class LoanResponseDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    // Member mobile number
-    @Column(name = "member_mobile", nullable = false, length = 15)
     private String memberMobile;
-
-    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal requestedAmount;
-
-    @Column(precision = 15, scale = 2)
     private BigDecimal approvedAmount;
-
-    @Column(nullable = false)
-    private Double interestRate; // 1.0 => 1% annual
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private LoanStatus status;   // PENDING, APPROVED, REJECTED
-
-    @Column
+    private Double interestRate;
+    private String status;
     private String purpose;
-
-    @Column(nullable = false)
     private Instant createdAt;
-
-    @Column
     private Instant decidedAt;
-
-    public enum LoanStatus {
-        PENDING,
-        APPROVED,
-        REJECTED
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = Instant.now();
-    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -65,8 +30,8 @@ public class Loan {
     public Double getInterestRate() { return interestRate; }
     public void setInterestRate(Double interestRate) { this.interestRate = interestRate; }
 
-    public LoanStatus getStatus() { return status; }
-    public void setStatus(LoanStatus status) { this.status = status; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public String getPurpose() { return purpose; }
     public void setPurpose(String purpose) { this.purpose = purpose; }
