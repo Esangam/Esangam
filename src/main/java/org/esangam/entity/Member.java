@@ -1,77 +1,70 @@
 package org.esangam.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@ApplicationScoped
+
+/**
+ * Represents any user in Esangam.
+ * ES_ADMIN -> platform owner
+ * ADMIN    -> society owner
+ * MEMBER   -> user under a society
+ */
 @Entity
+@Table(name = "member")
 public class Member {
 
     @Id
+    @Column(name = "mobile_number", nullable = false)
     private String mobileNumber;
 
-    private String name;
+    @Column(nullable = false)
+    private String firstName;
 
-    private double valuePaid;
+    private String lastName;
 
+    @Column(nullable = false)
+    private String fullName;
+
+    @Column(nullable = false)
     private String password;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    /** Role of the user: ES_ADMIN, ADMIN, MEMBER. */
+    @Column(nullable = false)
+    private String role;
+
+    /** Belongs to one society (null for ES_ADMIN). */
     @JsonIgnore
-    private List<Loan> loans = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "society_id")
+    private Society society;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Message> messages = new ArrayList<>();
 
-    public Long getMobileNumber() {
-        return mobileNumber;
-    }
+    public String getMobileNumber() { return mobileNumber; }
 
-    public void setMobileNumber(String mobileNumber) {
-        this.mobileNumber = mobileNumber;
-    }
+    public void setMobileNumber(String mobileNumber) { this.mobileNumber = mobileNumber; }
 
-    public String getName() {
-        return name;
-    }
+    public String getFirstName() { return firstName; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
-    public double getValuePaid() {
-        return valuePaid;
-    }
+    public String getLastName() { return lastName; }
 
-    public void setValuePaid(double valuePaid) {
-        this.valuePaid = valuePaid;
-    }
+    public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public String getPassword() {
-        return password;
-    }
+    public String getFullName() { return fullName; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 
-    public List<Loan> getLoans() {
-        return loans;
-    }
+    public String getPassword() { return password; }
 
-    public void setLoans(List<Loan> loans) {
-        this.loans = loans;
-    }
+    public void setPassword(String password) { this.password = password; }
 
-    public List<Message> getMessages() {
-        return messages;
-    }
+    public String getRole() { return role; }
 
-    public void setMessages(List<Message> messages) {
-        this.messages = messages;
-    }
+    public void setRole(String role) { this.role = role; }
+
+    public Society getSociety() { return society; }
+
+    public void setSociety(Society society) { this.society = society; }
 }

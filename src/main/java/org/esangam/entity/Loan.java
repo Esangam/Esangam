@@ -1,113 +1,97 @@
 package org.esangam.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
+/**
+ * Represents a loan taken by a member.
+ * Uses Simple Interest:
+ * FinalAmount = Principal + (Principal * (rate/100) * years)
+ */
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "loan")
 public class Loan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private double issuedAmount;
-
-    private LocalDate loanIssuedDate = LocalDate.now();
-
-    private boolean repaid;
-
-    private LocalDate loanDueDate = setDueDate(loanIssuedDate);
-
-    private final double dueAmount = calculateDueAmount();
-
-    @ManyToOne
-    @JoinColumn(name = "member_mobile_number", referencedColumnName = "mobileNumber")
+    /** Member who requested the loan. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_mobile", nullable = false)
     private Member member;
 
-    public double calculateDueAmount() {
-        long years = ChronoUnit.YEARS.between(loanIssuedDate, LocalDate.now());
-        return issuedAmount * Math.pow(1.01, years);
+    /** Principal loan amount. */
+    @Column(nullable = false)
+    private double amount;
+
+    /** Base rate at the time of approval (percentage). */
+    @Column(nullable = false)
+    private double baseRate;
+
+    /** Overdue rate (percentage). */
+    @Column(nullable = false)
+    private double overdueRate;
+
+    /** Loan status: REQUESTED, APPROVED, REJECTED. */
+    @Column(nullable = false)
+    private String status;
+
+    /** Date on which ADMIN approved the loan. */
+    private LocalDate approvalDate;
+
+    /** Due date = approvalDate + 1 year. */
+    private LocalDate dueDate;
+
+    public Long getId() { return id; }
+
+    public Member getMember() { return member; }
+
+    public void setMember(Member member) { this.member = member; }
+
+    public double getAmount() { return amount; }
+
+    public void setAmount(double amount) { this.amount = amount; }
+
+    public double getBaseRate() { return baseRate; }
+
+    public void setBaseRate(double baseRate) { this.baseRate = baseRate; }
+
+    public double getOverdueRate() { return overdueRate; }
+
+    public void setOverdueRate(double overdueRate) { this.overdueRate = overdueRate; }
+
+    public String getStatus() { return status; }
+
+    public void setStatus(String status) { this.status = status; }
+
+    public LocalDate getApprovalDate() { return approvalDate; }
+
+    public void setApprovalDate(LocalDate approvalDate) { this.approvalDate = approvalDate; }
+
+    public LocalDate getDueDate() { return dueDate; }
+
+    public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
+
+    /** Calculates simple interest for 1 year with base rate. */
+    public double calculateInterestBeforeDue() {
+        if (approvalDate == null) return 0;
+        double years = 1.0;
+        return amount * (baseRate / 100.0) * years;
     }
 
-    public LocalDate setDueDate(LocalDate issueDate) {
-        return issueDate.plusYears(1).minusDays(1);
+    /** Calculates overdue interest roughly based on days after due date. */
+    public double calculateOverdueInterest() {
+        if (dueDate == null) return 0;
+        LocalDate today = LocalDate.now();
+        if (!today.isAfter(dueDate)) return 0;
+        long daysLate = java.time.temporal.ChronoUnit.DAYS.between(dueDate, today);
+        double yearsDelayed = daysLate / 365.0;
+        return amount * (overdueRate / 100.0) * yearsDelayed;
     }
 
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public double getAmount() {
-        return issuedAmount;
-    }
-
-    public void setAmount(double amount) {
-        this.issuedAmount = amount;
-    }
-
-    public LocalDate getIssueDate() {
-        return loanIssuedDate;
-    }
-
-    public void setIssueDate(LocalDate issueDate) {
-        this.loanIssuedDate = issueDate;
-    }
-
-    public boolean isRepaid() {
-        return repaid;
-    }
-
-    public void setRepaid(boolean repaid) {
-        this.repaid = repaid;
-    }
-
-    public Member getMember() {
-        return member;
-    }
-
-    public void setMember(Member member) {
-        this.member = member;
-    }
-
-    public double getIssuedAmount() {
-        return issuedAmount;
-    }
-
-    public void setIssuedAmount(double issuedAmount) {
-        this.issuedAmount = issuedAmount;
-    }
-
-    public LocalDate getLoanIssuedDate() {
-        return loanIssuedDate;
-    }
-
-    public void setLoanIssuedDate(LocalDate loanIssuedDate) {
-        this.loanIssuedDate = loanIssuedDate;
-    }
-
-    public double getDueAmount() {
-        return dueAmount;
-    }
-
-    public LocalDate getLoanDueDate() {
-        return loanDueDate;
-    }
-
-    public void setLoanDueDate(LocalDate loanDueDate) {
-        this.loanDueDate = loanDueDate;
+    /** Total final amount payable. */
+    public double getFinalAmount() {
+        return amount + calculateInterestBeforeDue() + calculateOverdueInterest();
     }
 }
