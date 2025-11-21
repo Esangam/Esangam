@@ -22,25 +22,27 @@ public class MemberService {
     @Inject
     SocietyRepository societyRepository;
 
+
     /**
      * Creates ES_ADMIN if not exists.
      */
     @Transactional
-    public Member createEsangamAdminIfNotExists() {
-        if (memberRepository.esAdminExists()) {
-            return memberRepository.find("role", ONE).firstResult();
+    public Member createCustomEsAdmin(String mobile, String password) {
+        long count = memberRepository.count("role", "ES_ADMIN");
+        if (count > 0) {
+            return null;
         }
 
-        Member admin = new Member();
-        admin.setMobileNumber(ES_ADMIN);
-        admin.setFirstName("Esangam");
-        admin.setLastName("Admin");
-        admin.setFullName("Esangam Admin");
-        admin.setPassword(ONE_PASSWORD);
-        admin.setRole(ONE);
+        Member m = new Member();
+        m.setFirstName("Esangam");
+        m.setLastName("Admin");
+        m.setFullName("Esangam Admin");
+        m.setMobileNumber(mobile);
+        m.setPassword(password);
+        m.setRole(ONE);
 
-        memberRepository.persist(admin);
-        return admin;
+        memberRepository.persist(m);
+        return m;
     }
 
     /**
@@ -102,9 +104,7 @@ public class MemberService {
         return memberRepository.listMembersBySociety(societyId);
     }
 
-     String ES_ADMIN = "!@#$%^&*()";
-     String ONE = "ES_ADMIN";
-     String ONE_PASSWORD = "admin@123";
-     String TWO = "ADMIN";
-     String THREE = "MEMBER";
+    String ONE = "ES_ADMIN";
+    String TWO = "ADMIN";
+    String THREE = "MEMBER";
 }
