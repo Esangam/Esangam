@@ -1,5 +1,5 @@
-# Stage 1: Build the Quarkus application
-FROM maven:3.9.1-eclipse-temurin-17 AS build
+# Stage 1: Build the Quarkus application with Maven + JDK 21
+FROM maven:3.9.1-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
@@ -13,8 +13,8 @@ COPY src ./src
 # Build the Quarkus application
 RUN mvn package -DskipTests
 
-# Stage 2: Run the Quarkus application
-FROM eclipse-temurin:17-jdk-jammy
+# Stage 2: Run the Quarkus application with JDK 21
+FROM eclipse-temurin:21-jdk-jammy
 
 WORKDIR /app
 
