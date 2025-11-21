@@ -1,4 +1,4 @@
-# Stage 1: Build with Maven + JDK 17
+# Stage 1: Build the Quarkus application with Maven + JDK 17
 FROM maven:3.9.1-eclipse-temurin-17 AS build
 
 WORKDIR /app
@@ -7,18 +7,23 @@ WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
-# Copy source code and build
+# Copy the source code and resources
 COPY src ./src
-RUN mvn package -DskipTests
+COPY src/main/resources ./src/main/resources
 
-# Stage 2: Run with JDK 21
+# Build the Quarkus app as a runnable jar (fat jar)
+RUN mvn package -DskipTests -Dquarkus.package.type=uber-jar
+
+# Stage 2: Run the Quarkus application with JDK 21
 FROM eclipse-temurin:21-jdk-jammy
 
 WORKDIR /app
 
 # Copy the built jar
-COPY --from=build /app/target/quarkus-app/quarkus-run.jar ./quarkus-run.jar
+COPY --from=build /app/target/*-runner.jar ./app.jar
 
+# Expose the port
 EXPOSE 8080
 
-CMD ["java", "-jar", "quarkus-run.jar"]
+# Run the application
+CMD ["java", "-jar", "app.jar"]
