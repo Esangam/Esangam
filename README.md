@@ -63,5 +63,14 @@ A modern, lightweight **loan and member management** system built with **Quarkus
 Hit the url to start rexploring:
 
 https://esangam-ui.vercel.app/login
+
+
 Username: 999999999
-password: admin@123
+Password: admin@123
+
+
+this will opens the page like this 
+<img width="1919" height="644" alt="image" src="https://github.com/user-attachments/assets/8641ff4c-c8a1-448b-9ef8-1d81c21ca73c" />
+
+click on sangam and start adding your society then login with your society and add your memebers
+
