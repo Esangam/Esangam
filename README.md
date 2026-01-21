@@ -63,3 +63,5 @@ A modern, lightweight **loan and member management** system built with **Quarkus
 Hit the url to start rexploring:
 
 https://esangam-ui.vercel.app/login
+Username: 999999999
+password: admin@123
